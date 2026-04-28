@@ -423,7 +423,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
       {
         cupsCopyString(username, authinfo->items[0].value, sizeof(username));
 
-        cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" using AuthRef.", username);
+        cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using AuthRef.", username, con->http->hostname);
       }
 
       AuthorizationFreeItemSet(authinfo);
@@ -455,7 +455,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 
       cupsCopyString(username, pwd->pw_name, sizeof(username));
 
-      cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" using AuthRef + PeerCred.", username);
+      cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using AuthRef + PeerCred.", username, con->http->hostname);
     }
 
     con->type = CUPSD_AUTH_BASIC;
@@ -507,13 +507,13 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 
     if ((PeerCred == CUPSD_PEERCRED_ROOTONLY || httpGetState(con->http) == HTTP_STATE_PUT_RECV) && strcmp(authorization + 9, "root"))
     {
-      cupsdLogClient(con, CUPSD_LOG_ERROR, "User \"%s\" is not allowed to use peer credentials.", authorization + 9);
+      cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (not allowed to use peer credentials.)", authorization + 9, con->http->hostname);
       return;
     }
 
     if ((pwd = getpwnam(authorization + 9)) == NULL)
     {
-      cupsdLogClient(con, CUPSD_LOG_ERROR, "User \"%s\" does not exist.", authorization + 9);
+      cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (does not exist.)", authorization + 9, con->http->hostname);
       return;
     }
 
@@ -531,7 +531,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 
     if (pwd->pw_uid != CUPSD_UCRED_UID(peercred))
     {
-      cupsdLogClient(con, CUPSD_LOG_ERROR, "Invalid peer credentials for \"%s\" - got %d, expected %d.", authorization + 9, CUPSD_UCRED_UID(peercred), pwd->pw_uid);
+      cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (Invalid peer credentials - got %d, expected %d.)", authorization + 9, con->http->hostname, CUPSD_UCRED_UID(peercred), pwd->pw_uid);
 #  ifdef HAVE_SYS_UCRED_H
       cupsdLogClient(con, CUPSD_LOG_DEBUG2, "cr_version=%d", peercred.cr_version);
       cupsdLogClient(con, CUPSD_LOG_DEBUG2, "cr_uid=%d", peercred.cr_uid);
@@ -547,7 +547,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
     con->gss_uid = CUPSD_UCRED_UID(peercred);
 #  endif /* HAVE_GSSAPI */
 
-    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as %s using PeerCred.", username);
+    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using PeerCred.", username, con->http->hostname);
 
     con->type = CUPSD_AUTH_BASIC;
   }
@@ -572,7 +572,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
     cupsCopyString(username, localuser->username, sizeof(username));
     con->type = localuser->type;
 
-    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as %s using Local.", username);
+    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using Local.", username, con->http->hostname);
   }
   else if (!strncmp(authorization, "Basic ", 6))
   {
@@ -665,7 +665,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
       pamerr = pam_start("cups", username, &pamdata, &pamh);
       if (pamerr != PAM_SUCCESS)
       {
-	cupsdLogClient(con, CUPSD_LOG_ERROR, "pam_start() returned %d (%s)", pamerr, pam_strerror(pamh, pamerr));
+	cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (pam_start() returned %d: %s)", username, con->http->hostname, pamerr, pam_strerror(pamh, pamerr));
 	return;
       }
 
@@ -673,34 +673,34 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 #    ifdef PAM_RHOST
       pamerr = pam_set_item(pamh, PAM_RHOST, con->http->hostname);
       if (pamerr != PAM_SUCCESS)
-	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_set_item(PAM_RHOST) returned %d (%s)", pamerr, pam_strerror(pamh, pamerr));
+	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_set_item(PAM_RHOST) returned %d: %s", pamerr, pam_strerror(pamh, pamerr));
 #    endif /* PAM_RHOST */
 
 #    ifdef PAM_TTY
       pamerr = pam_set_item(pamh, PAM_TTY, "cups");
       if (pamerr != PAM_SUCCESS)
-	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_set_item(PAM_TTY) returned %d (%s)", pamerr, pam_strerror(pamh, pamerr));
+	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_set_item(PAM_TTY) returned %d: %s", pamerr, pam_strerror(pamh, pamerr));
 #    endif /* PAM_TTY */
 #  endif /* HAVE_PAM_SET_ITEM */
 
       pamerr = pam_authenticate(pamh, PAM_SILENT);
       if (pamerr != PAM_SUCCESS)
       {
-  cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (%s)", username, con->http->hostname, pam_strerror(pamh, pamerr));
-  pam_end(pamh, 0);
+	cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (%s)", username, con->http->hostname, pam_strerror(pamh, pamerr));
+	pam_end(pamh, 0);
 	return;
       }
 
 #  ifdef HAVE_PAM_SETCRED
       pamerr = pam_setcred(pamh, PAM_ESTABLISH_CRED | PAM_SILENT);
       if (pamerr != PAM_SUCCESS)
-	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_setcred() returned %d (%s)", pamerr, pam_strerror(pamh, pamerr));
+	cupsdLogClient(con, CUPSD_LOG_WARN, "pam_setcred() returned %d: %s", pamerr, pam_strerror(pamh, pamerr));
 #  endif /* HAVE_PAM_SETCRED */
 
       pamerr = pam_acct_mgmt(pamh, PAM_SILENT);
       if (pamerr != PAM_SUCCESS)
       {
-	cupsdLogClient(con, CUPSD_LOG_ERROR, "pam_acct_mgmt() returned %d (%s)", pamerr, pam_strerror(pamh, pamerr));
+	cupsdLogClient(con, CUPSD_LOG_ERROR, "Authentication failed for user \"%s\" from %s (pam_acct_mgmt() returned %d: %s)", username, con->http->hostname, pamerr, pam_strerror(pamh, pamerr));
 	pam_end(pamh, 0);
 	return;
       }
@@ -719,7 +719,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 #endif /* HAVE_LIBPAM */
     }
 
-    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" using Basic.", username);
+    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using Basic.", username, con->http->hostname);
     con->type = type;
   }
   else if (!strncmp(authorization, "Bearer ", 7))
@@ -777,7 +777,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 
     cupsJWTDelete(jwt);
 
-    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" (%s <%s>) using OAuth/OpenID.", con->username, con->realname, con->email);
+    cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" (%s <%s>) from %s using OAuth/OpenID.", con->username, con->realname, con->email, con->http->hostname);
     return;
   }
 #ifdef HAVE_GSSAPI
@@ -893,7 +893,7 @@ cupsdAuthorize(cupsd_client_t *con)	/* I - Client connection */
 
       cupsCopyString(username, output_token.value, sizeof(username));
 
-      cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" using Negotiate.", username);
+      cupsdLogClient(con, CUPSD_LOG_DEBUG, "Authorized as \"%s\" from %s using Negotiate.", username, con->http->hostname);
 
       gss_release_name(&minor_status, &client_name);
       gss_release_buffer(&minor_status, &output_token);
@@ -2084,7 +2084,7 @@ cupsdIsAuthorized(cupsd_client_t *con,	/* I - Connection */
   * The user isn't part of the specified users or groups, so deny access...
   */
 
-  cupsdLogMessage(CUPSD_LOG_WARN, "Authentication failed for user \"%s\" from %s (User not in group(s)).", con->username, con->http->hostname);
+  cupsdLogClient(con, CUPSD_LOG_WARN, "Authentication failed for user \"%s\" from %s (User not in group(s)).", con->username, con->http->hostname);
 
   return (con->username[0] ? HTTP_STATUS_FORBIDDEN : HTTP_STATUS_UNAUTHORIZED);
 }

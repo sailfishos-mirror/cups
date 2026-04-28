@@ -5447,7 +5447,7 @@ update_job(cupsd_job_t *job)		/* I - Job to check */
       keywords     = NULL;
       num_keywords = cupsParseOptions(message, 0, &keywords);
 
-      for (i = 0, keyword = keywords; i < num_keywords; i ++)
+      for (i = 0, keyword = keywords; i < num_keywords; i ++, keyword ++)
       {
        /*
         * Filter out "special" PPD keywords...

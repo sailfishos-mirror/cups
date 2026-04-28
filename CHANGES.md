@@ -2,6 +2,12 @@ CHANGES - OpenPrinting CUPS
 ===========================
 
 
+Changes in CUPS v2.4.20 (YYYY-MM-DD)
+------------------------------------
+
+- Fixed handling of multiple PPD: keywords from filters (Issue #1562)
+
+
 Changes in CUPS v2.4.19 (2026-04-27)
 ------------------------------------
 

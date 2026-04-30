@@ -3339,7 +3339,12 @@ _ppdCreateFromIPP(char   *buffer,	/* I - Filename buffer */
     cupsCopyString(make, "Unknown", sizeof(make));
   }
 
-  if (!_cups_strncasecmp(make, "Hewlett Packard ", 16) || !_cups_strncasecmp(make, "Hewlett-Packard ", 16))
+  if (!_cups_strncasecmp(make, "Fuji Xerox ", 11))
+  {
+    model = make + 11;
+    cupsCopyString(make, "Fuji Xerox", sizeof(make));
+  }
+  else if (!_cups_strncasecmp(make, "Hewlett Packard ", 16) || !_cups_strncasecmp(make, "Hewlett-Packard ", 16))
   {
    /*
     * Normalize HP printer make and model...
@@ -3350,6 +3355,11 @@ _ppdCreateFromIPP(char   *buffer,	/* I - Filename buffer */
 
     if (!_cups_strncasecmp(model, "HP ", 3))
       model += 3;
+  }
+  else if (!_cups_strncasecmp(make, "KONICA MINOLTA ", 15))
+  {
+    model = make + 15;
+    cupsCopyString(make, "KONICA MINOLTA", sizeof(make));
   }
   else if ((mptr = strchr(make, ' ')) != NULL)
   {

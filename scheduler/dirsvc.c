@@ -460,7 +460,7 @@ dnssdRegisterPrinter(
 {
   char		name[256],		/* Service name */
 		regtype[256];		/* Registration type(s) */
-  int		num_txt; = 0;		/* Number of IPP(S) TXT key/value pairs */
+  int		num_txt = 0;		/* Number of IPP(S) TXT key/value pairs */
   cups_option_t	*txt = NULL;		/* IPP(S) TXT key/value pairs */
   bool		status;			/* Registration status */
 

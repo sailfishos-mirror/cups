@@ -225,6 +225,8 @@ VAR int			FilterLimit		VALUE(0),
 					/* multiple-operation-time-out value */
 			WebInterface		VALUE(CUPS_DEFAULT_WEBIF);
 					/* Enable the web interface? */
+VAR int			BrowseIPPSOnly		VALUE(0);
+					/* Only browse IPPS printers? */
 VAR cups_file_t		*AccessFile		VALUE(NULL),
 					/* Access log file */
 			*ErrorFile		VALUE(NULL),

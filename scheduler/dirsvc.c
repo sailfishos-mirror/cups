@@ -43,7 +43,7 @@ cupsdDeregisterPrinter(
     int             removeit)		/* I - Printer being permanently removed */
 {
  /*
-  * Only deregister if browsing is enabled and it's a local printer...
+
   */
 
   cupsdLogMessage(CUPSD_LOG_DEBUG2, "cupsdDeregisterPrinter(p=%p(%s), removeit=%d)", (void *)p, p->name, removeit);
@@ -477,7 +477,9 @@ dnssdRegisterPrinter(
 
   if (!p->shared)
     return;
-
+  
+if (BrowseIPPSOnly && !(p->type & CUPS_PTYPE_REMOTE))
+    return;
  /*
   * Set the registered name as needed; the registered name takes the form of
   * "<printer-info> @ <computer name>"...

@@ -43,8 +43,8 @@ cupsdDeregisterPrinter(
     int             removeit)		/* I - Printer being permanently removed */
 {
  /*
-
-  */
+   * Only deregister if browsing is enabled and it's a local printer...
+   */
 
   cupsdLogMessage(CUPSD_LOG_DEBUG2, "cupsdDeregisterPrinter(p=%p(%s), removeit=%d)", (void *)p, p->name, removeit);
 
@@ -478,8 +478,6 @@ dnssdRegisterPrinter(
   if (!p->shared)
     return;
   
-if (BrowseIPPSOnly && !(p->type & CUPS_PTYPE_REMOTE))
-    return;
  /*
   * Set the registered name as needed; the registered name takes the form of
   * "<printer-info> @ <computer name>"...
@@ -522,6 +520,8 @@ if (BrowseIPPSOnly && !(p->type & CUPS_PTYPE_REMOTE))
   status &= cupsDNSSDServiceAdd(p->dnssd, "_printer._tcp", /*domain*/NULL, DNSSDHostName, /*port*/0, /*num_txt*/0, /*txt*/NULL);
 
   // IPP service
+  if (!BrowseIPPSOnly)
+  {
   num_txt = dnssdBuildTxtRecord(p, &txt);
 
   if (p->type & CUPS_PTYPE_FAX)
@@ -540,7 +540,7 @@ if (BrowseIPPSOnly && !(p->type & CUPS_PTYPE_REMOTE))
   }
 
   status &= cupsDNSSDServiceAdd(p->dnssd, regtype, /*domain*/NULL, DNSSDHostName, (uint16_t)DNSSDPort, num_txt, txt);
-
+  }
   // IPPS service
   if (DNSSDSubTypes)
     snprintf(regtype, sizeof(regtype), "_ipps._tcp,%s", DNSSDSubTypes);

@@ -520,9 +520,9 @@ dnssdRegisterPrinter(
   status &= cupsDNSSDServiceAdd(p->dnssd, "_printer._tcp", /*domain*/NULL, DNSSDHostName, /*port*/0, /*num_txt*/0, /*txt*/NULL);
 
   // IPP service
+  num_txt = dnssdBuildTxtRecord(p, &txt);
   if (!BrowseIPPSOnly)
   {
-    num_txt = dnssdBuildTxtRecord(p, &txt);
 
     if (p->type & CUPS_PTYPE_FAX)
   {

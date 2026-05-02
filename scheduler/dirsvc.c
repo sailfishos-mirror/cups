@@ -522,9 +522,9 @@ dnssdRegisterPrinter(
   // IPP service
   if (!BrowseIPPSOnly)
   {
-  num_txt = dnssdBuildTxtRecord(p, &txt);
+    num_txt = dnssdBuildTxtRecord(p, &txt);
 
-  if (p->type & CUPS_PTYPE_FAX)
+    if (p->type & CUPS_PTYPE_FAX)
   {
     if (DNSSDSubTypes)
       snprintf(regtype, sizeof(regtype), "_fax-ipp._tcp,%s", DNSSDSubTypes);

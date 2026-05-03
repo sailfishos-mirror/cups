@@ -25,14 +25,15 @@ msgstr ""
 "Project-Id-Version: CUPS 2.5\n"
 "Report-Msgid-Bugs-To: https://github.com/openprinting/cups/issues\n"
 "POT-Creation-Date: 2026-03-23 17:17-0400\n"
-"PO-Revision-Date: 2019-12-30 19:44+0200\n"
-"Last-Translator: scootergrisen\n"
-"Language-Team: Danish\n"
+"PO-Revision-Date: 2026-05-03 19:09+0000\n"
+"Last-Translator: JonasBentin <jonasbentin19+github@gmail.com>\n"
+"Language-Team: Danish <https://hosted.weblate.org/projects/cups/cups/da/>\n"
 "Language: da\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.17.1\n"
 
 msgid "\t\t(all)"
 msgstr "\t\t(alle)"
@@ -42,36 +43,36 @@ msgstr "\t\t(ingen)"
 
 #, c-format
 msgid "\t%d entries"
-msgstr ""
+msgstr "\t%d posteringer"
 
 #, c-format
 msgid "\t%s"
-msgstr ""
+msgstr "\t%s"
 
 msgid "\tAfter fault: continue"
-msgstr ""
+msgstr "\tEfter fejl: fortsæt"
 
 #, c-format
 msgid "\tAlerts: %s"
-msgstr ""
+msgstr "\tAdvarsler: %s"
 
 msgid "\tBanner required"
-msgstr ""
+msgstr "\tBanner påkrævet"
 
 msgid "\tCharset sets:"
-msgstr ""
+msgstr "\tCharset (tegnsæt) sæt:"
 
 msgid "\tConnection: direct"
-msgstr ""
+msgstr "\tForbindelse: direkte"
 
 msgid "\tConnection: remote"
-msgstr ""
+msgstr "\tForbindelse: fjern"
 
 msgid "\tContent types: any"
-msgstr ""
+msgstr "\tIndholdstyper: alle"
 
 msgid "\tDefault page size:"
-msgstr ""
+msgstr "\tStandard sidestørrelse:"
 
 msgid "\tDefault pitch:"
 msgstr ""

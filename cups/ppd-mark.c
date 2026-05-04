@@ -1,7 +1,7 @@
 /*
  * Option marking routines for CUPS.
  *
- * Copyright © 2020-2025 by OpenPrinting.
+ * Copyright © 2020-2026 by OpenPrinting.
  * Copyright © 2007-2019 by Apple Inc.
  * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
@@ -793,6 +793,9 @@ ppd_mark_option(ppd_file_t *ppd,	/* I - PPD file */
 
   cupsArraySave(ppd->options);
 
+  if (!_cups_strcasecmp(option, "media") || !_cups_strcasecmp(option, "media-col"))
+    option = "PageSize";
+
   o = ppdFindOption(ppd, option);
 
   cupsArrayRestore(ppd->options);
@@ -811,7 +814,7 @@ ppd_mark_option(ppd_file_t *ppd,	/* I - PPD file */
     if ((c = ppdFindChoice(o, "Custom")) == NULL)
       return;
 
-    if (!_cups_strcasecmp(option, "PageSize"))
+    if (!_cups_strcasecmp(option, "PageRegion") || !_cups_strcasecmp(option, "PageSize"))
     {
      /*
       * Handle custom page sizes...
@@ -888,6 +891,34 @@ ppd_mark_option(ppd_file_t *ppd,	/* I - PPD file */
     */
 
     choice = "Custom";
+  }
+  else if (!_cups_strcasecmp(option, "PageRegion") || !_cups_strcasecmp(option, "PageSize"))
+  {
+   /*
+    * Handle page sizes as PPD, legacy, or PWG names...
+    */
+
+    ppd_size_t	*ppdsize;		/* PPD size */
+
+    if ((ppdsize = ppdPageSize(ppd, choice)) == NULL)
+    {
+     /*
+      * Not a PPD size name, look it up...
+      */
+
+      const char *pagesize;		/* PPD PageSize choice */
+
+      if ((pagesize = _ppdCacheGetPageSize(ppd->cache, /*job*/NULL, choice, /*exact*/NULL)) != NULL)
+        ppdsize = ppdPageSize(ppd, pagesize);
+    }
+
+    if (!ppdsize)
+      return;
+
+    choice = ppdsize->name;
+
+    if ((c = ppdFindChoice(o, choice)) == NULL)
+      return;
   }
   else if (choice[0] == '{')
   {

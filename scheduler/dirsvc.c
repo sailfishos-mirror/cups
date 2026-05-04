@@ -1,7 +1,7 @@
 /*
  * Directory services routines for the CUPS scheduler.
  *
- * Copyright © 2020-2025 by OpenPrinting.
+ * Copyright © 2020-2026 by OpenPrinting.
  * Copyright © 2007-2018 by Apple Inc.
  * Copyright © 1997-2007 by Easy Software Products, all rights reserved.
  *
@@ -43,8 +43,8 @@ cupsdDeregisterPrinter(
     int             removeit)		/* I - Printer being permanently removed */
 {
  /*
-   * Only deregister if browsing is enabled and it's a local printer...
-   */
+  * Only deregister if browsing is enabled and it's a local printer...
+  */
 
   cupsdLogMessage(CUPSD_LOG_DEBUG2, "cupsdDeregisterPrinter(p=%p(%s), removeit=%d)", (void *)p, p->name, removeit);
 
@@ -460,8 +460,8 @@ dnssdRegisterPrinter(
 {
   char		name[256],		/* Service name */
 		regtype[256];		/* Registration type(s) */
-  int		num_txt = 0;		/* Number of IPP(S) TXT key/value pairs */
-  cups_option_t	*txt = NULL;		/* IPP(S) TXT key/value pairs */
+  int		num_txt;		/* Number of IPP(S) TXT key/value pairs */
+  cups_option_t	*txt;			/* IPP(S) TXT key/value pairs */
   bool		status;			/* Registration status */
 
 
@@ -477,7 +477,7 @@ dnssdRegisterPrinter(
 
   if (!p->shared)
     return;
-  
+
  /*
   * Set the registered name as needed; the registered name takes the form of
   * "<printer-info> @ <computer name>"...
@@ -519,29 +519,31 @@ dnssdRegisterPrinter(
   // LPD placeholder
   status &= cupsDNSSDServiceAdd(p->dnssd, "_printer._tcp", /*domain*/NULL, DNSSDHostName, /*port*/0, /*num_txt*/0, /*txt*/NULL);
 
-  // IPP service
+  // IPP/IPPS services
   num_txt = dnssdBuildTxtRecord(p, &txt);
+
   if (!BrowseIPPSOnly)
   {
-
+    // Add IPP service...
     if (p->type & CUPS_PTYPE_FAX)
-  {
-    if (DNSSDSubTypes)
-      snprintf(regtype, sizeof(regtype), "_fax-ipp._tcp,%s", DNSSDSubTypes);
+    {
+      if (DNSSDSubTypes)
+	snprintf(regtype, sizeof(regtype), "_fax-ipp._tcp,%s", DNSSDSubTypes);
+      else
+	cupsCopyString(regtype, "_fax-ipp._tcp", sizeof(regtype));
+    }
     else
-      cupsCopyString(regtype, "_fax-ipp._tcp", sizeof(regtype));
-  }
-  else
-  {
-    if (DNSSDSubTypes)
-      snprintf(regtype, sizeof(regtype), "_ipp._tcp,%s", DNSSDSubTypes);
-    else
-      cupsCopyString(regtype, "_ipp._tcp", sizeof(regtype));
+    {
+      if (DNSSDSubTypes)
+	snprintf(regtype, sizeof(regtype), "_ipp._tcp,%s", DNSSDSubTypes);
+      else
+	cupsCopyString(regtype, "_ipp._tcp", sizeof(regtype));
+    }
+
+    status &= cupsDNSSDServiceAdd(p->dnssd, regtype, /*domain*/NULL, DNSSDHostName, (uint16_t)DNSSDPort, num_txt, txt);
   }
 
-  status &= cupsDNSSDServiceAdd(p->dnssd, regtype, /*domain*/NULL, DNSSDHostName, (uint16_t)DNSSDPort, num_txt, txt);
-  }
-  // IPPS service
+  // Add IPPS service...
   if (DNSSDSubTypes)
     snprintf(regtype, sizeof(regtype), "_ipps._tcp,%s", DNSSDSubTypes);
   else
@@ -551,6 +553,7 @@ dnssdRegisterPrinter(
 
   cupsFreeOptions(num_txt, txt);
 
+  // Publish all services...
   status &= cupsDNSSDServicePublish(p->dnssd);
 
   if (status)

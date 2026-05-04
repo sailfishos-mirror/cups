@@ -68,7 +68,7 @@ static const cupsd_var_t	cupsd_vars[] =
 {
   { "AutoPurgeJobs", 		&JobAutoPurge,		CUPSD_VARTYPE_BOOLEAN },
   { "BrowseDNSSDSubTypes",	&DNSSDSubTypes,		CUPSD_VARTYPE_NULLSTRING },
-  { "BrowseIPPSOnly",	&BrowseIPPSOnly,	CUPSD_VARTYPE_BOOLEAN },
+  { "BrowseIPPSOnly",		&BrowseIPPSOnly,	CUPSD_VARTYPE_BOOLEAN },
   { "BrowseWebIF",		&BrowseWebIF,		CUPSD_VARTYPE_BOOLEAN },
   { "Browsing",			&Browsing,		CUPSD_VARTYPE_BOOLEAN },
   { "Classification",		&Classification,	CUPSD_VARTYPE_STRING },

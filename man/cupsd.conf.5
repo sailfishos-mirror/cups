@@ -1,14 +1,14 @@
 .\"
 .\" cupsd.conf man page for CUPS.
 .\"
-.\" Copyright © 2020-2025 by OpenPrinting.
+.\" Copyright © 2020-2026 by OpenPrinting.
 .\" Copyright © 2007-2019 by Apple Inc.
 .\" Copyright © 1997-2006 by Easy Software Products.
 .\"
 .\" Licensed under Apache License v2.0.  See the file "LICENSE" for more
 .\" information.
 .\"
-.TH cupsd.conf 5 "CUPS" "2025-04-14" "OpenPrinting"
+.TH cupsd.conf 5 "CUPS" "2026-05-04" "OpenPrinting"
 .SH NAME
 cupsd.conf \- server configuration file for cups
 .SH DESCRIPTION
@@ -51,6 +51,14 @@ The default is "No".
 .BI BrowseDNSSDSubTypes _subtype[,...]
 Specifies the DNS-SD sub-types to advertise, separated by commas.
 The default is "_cups,_print,_universal" to advertise shared printers to CUPS, IPP Everywhere, and AirPrint clients, respectively.
+.\"#BrowseIPPSOnly
+.TP 5
+\fBBrowseIPPSOnly Yes\fR
+.TP 5
+\fBBrowseIPPSOnly No\fR
+.br
+Specifies whether the scheduler only advertises secure (IPPS) services for shared printers.
+The default is "No".
 .\"#BrowseLocalProtocols
 .TP 5
 \fBBrowseLocalProtocols all\fR
@@ -67,14 +75,6 @@ The default is "dnssd" on systems that support DNS-SD and "none" otherwise.
 \fBBrowseWebIF No\fR
 .br
 Specifies whether the CUPS web interface is advertised.
-The default is "No".
-.\"#BrowseIPPSOnly
-.TP 5
-\fBBrowseIPPSOnly Yes\fR
-.TP 5
-\fBBrowseIPPSOnly No\fR
-.br
-Specifies whether to only advertise IPPS services.
 The default is "No".
 .\"#Browsing
 .TP 5
@@ -939,4 +939,4 @@ Require authentication for accesses from outside the 10. network:
 .BR subscriptions.conf (5),
 CUPS Online Help (http://localhost:631/help)
 .SH COPYRIGHT
-Copyright \[co] 2020-2025 by OpenPrinting.
+Copyright \[co] 2020-2026 by OpenPrinting.
